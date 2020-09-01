@@ -1,0 +1,131 @@
+/* ###################################################################
+**     Filename    : main.c
+**     Project     : Code_test
+**     Processor   : MKE02Z16VLC4
+**     Version     : Driver 01.01
+**     Compiler    : GNU C Compiler
+**     Date/Time   : 2019-11-14, 16:01, # CodeGen: 0
+**     Abstract    :
+**         Main module.
+**         This module contains user's application code.
+**     Settings    :
+**     Contents    :
+**         No public methods
+**
+** ###################################################################*/
+/*!
+** @file main.c
+** @version 01.01
+** @brief
+**         Main module.
+**         This module contains user's application code.
+*/         
+/*!
+**  @addtogroup main_module main module documentation
+**  @{
+*/         
+/* MODULE main */
+
+
+/* Including needed modules to compile this module/procedure */
+#include "Cpu.h"
+#include "Events.h"
+#include "UART1.h"
+#include "LED_D6_G.h"
+#include "LED_D6_R.h"
+#include "LED_D12_HCV.h"
+#include "TI1.h"
+#include "LED_D13_HCV.h"
+#include "TU1.h"
+#include "Hot_ind.h"
+#include "Cold_ind.h"
+#include "Door.h"
+#include "Hot_float.h"
+#include "Cold_float.h"
+#include "Low_pressure.h"
+#include "Buzzer.h"
+#include "Pulm.h"
+#include "Hot_ctrl.h"
+#include "Model_select.h"
+#include "Float_select.h"
+#include "IFsh1.h"
+#include "IntFlashLdd1.h"
+/* Including shared modules, which are used for whole project */
+#include "PE_Types.h"
+#include "PE_Error.h"
+#include "PE_Const.h"
+#include "IO_Map.h"
+
+/* User includes (#include below this line is not maintained by Processor Expert) */
+#include "UART_User/UART_User.h"
+#include "FW/FW.h"
+#define MAX_SOFT_TIMER 5
+static uint16_t softTimer[MAX_SOFT_TIMER] ={0};
+
+/*lint -save  -e970 Disable MISRA rule (6.3) checking. */
+int main(void)
+/*lint -restore Enable MISRA rule (6.3) checking. */
+{
+  /* Write your local variable definition here */
+
+  uint8_t i = 0;
+  /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
+  PE_low_level_init();
+  /*** End of Processor Expert internal initialization.                    ***/
+
+  /* Write your code here */
+  /* For example: for(;;) { } */
+  
+  UART_UserInit();
+//  WAIT1_Waitms(10);
+  FW_Init();
+  Debug("Hello\n");
+  while(1)
+  {
+	  if(flag_timer1_int == 1)
+	  {
+		  flag_timer1_int = 0;
+		  for(i = 0; i < MAX_SOFT_TIMER; i++) softTimer[i]++;
+	  } 
+	  if(softTimer[0] >= 1)
+	  {
+		  softTimer[0] = 0;
+		  UART_UserProcess();
+	  }
+	  if(softTimer[1] >= 100)
+	  {
+		  softTimer[1] = 0;
+		  
+	  }
+	  if(softTimer[2] >= 300)
+	  {
+		  softTimer[2] = 0;
+		  FW_Process();
+	  }
+	  
+	  FW_CheckInput();
+	  FW_LedInd_Process();
+  }
+  /*** Don't write any code pass this line, or it will be deleted during code generation. ***/
+  /*** RTOS startup code. Macro PEX_RTOS_START is defined by the RTOS component. DON'T MODIFY THIS CODE!!! ***/
+  #ifdef PEX_RTOS_START
+    PEX_RTOS_START();                  /* Startup of the selected RTOS. Macro is defined by the RTOS component. */
+  #endif
+  /*** End of RTOS startup code.  ***/
+  /*** Processor Expert end of main routine. DON'T MODIFY THIS CODE!!! ***/
+  for(;;){}
+  /*** Processor Expert end of main routine. DON'T WRITE CODE BELOW!!! ***/
+} /*** End of main routine. DO NOT MODIFY THIS TEXT!!! ***/
+
+/* END main */
+/*!
+** @}
+*/
+/*
+** ###################################################################
+**
+**     This file was created by Processor Expert 10.3 [05.09]
+**     for the Freescale Kinetis series of microcontrollers.
+**
+** ###################################################################
+*/
